@@ -30,6 +30,10 @@ export interface PostMetadata {
 }
 
 export function getAllPosts(): PostMetadata[] {
+  if (!fs.existsSync(postsDirectory)) {
+    return [];
+  }
+
   const files = fs.readdirSync(postsDirectory);
 
   const posts = files
@@ -71,6 +75,10 @@ export function getPostBySlug(slug: string): Post {
 }
 
 export function getPostSlugs(): string[] {
+  if (!fs.existsSync(postsDirectory)) {
+    return [];
+  }
+
   const files = fs.readdirSync(postsDirectory);
   return files
     .filter((file) => file.endsWith('.md'))
