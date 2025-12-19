@@ -31,7 +31,7 @@ export function PostList({ posts }: PostListProps) {
   return (
     <>
       {/* Categories */}
-      <div className="mb-12 flex flex-wrap gap-2">
+      <div className="mb-0 flex flex-wrap gap-2">
         <button
           onClick={() => setSelectedCategory(null)}
           className={`px-3 py-1 text-xs rounded-full transition-colors ${
@@ -58,12 +58,13 @@ export function PostList({ posts }: PostListProps) {
       </div>
 
       {/* Posts */}
-      {displayedPosts.length === 0 ? (
-        <div className="py-16">
-          <p className="text-gray-400">작성된 글이 없습니다.</p>
-        </div>
-      ) : (
-        <div className="space-y-12">
+      <div className="mt-8">
+        {displayedPosts.length === 0 ? (
+          <div className="py-16">
+            <p className="text-gray-400">작성된 글이 없습니다.</p>
+          </div>
+        ) : (
+          <div className="space-y-12">
           {displayedPosts.map((post) => (
             <Link href={`/posts/${post.slug}`} key={post.slug}>
               <article className="group py-8 border-b border-gray-100 hover:border-gray-300 transition-colors cursor-pointer">
@@ -96,6 +97,7 @@ export function PostList({ posts }: PostListProps) {
           ))}
         </div>
       )}
+      </div>
 
       {/* Pagination */}
       {hasNextPage && (
