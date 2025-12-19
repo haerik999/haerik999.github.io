@@ -1,12 +1,58 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import dayjs from 'dayjs';
 import { Calendar } from 'lucide-react';
 import { getPostBySlug, getPostSlugs } from '@/lib/posts';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 
+const siteURL = 'https://haerik999.github.io';
+const siteName = 'Learning Dev';
+
 export function generateStaticParams() {
   const slugs = getPostSlugs();
   return slugs.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+
+  const postURL = `${siteURL}/posts/${slug}`;
+
+  return {
+    title: post.title,
+    description:
+      post.excerpt ||
+      '개발 개념 정리 블로그 - Learning Dev',
+    keywords: [post.title, '개발 블로그', '기술 포스트'],
+    authors: [{ name: 'haerik999' }],
+    openGraph: {
+      type: 'article',
+      locale: 'ko_KR',
+      url: postURL,
+      siteName: siteName,
+      title: post.title,
+      description:
+        post.excerpt ||
+        '개발 개념 정리 블로그 - Learning Dev',
+      publishedTime: post.date,
+      authors: ['haerik999'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description:
+        post.excerpt ||
+        '개발 개념 정리 블로그 - Learning Dev',
+    },
+    alternates: {
+      canonical: postURL,
+    },
+  };
 }
 
 export default async function PostPage({
@@ -17,8 +63,32 @@ export default async function PostPage({
   const { slug } = await params;
   const post = getPostBySlug(slug);
 
+  const schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt || '개발 개념 정리 글',
+    datePublished: post.date,
+    dateModified: post.date,
+    author: {
+      '@type': 'Person',
+      name: 'haerik999',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Learning Dev',
+      url: siteURL,
+    },
+    url: `${siteURL}/posts/${slug}`,
+    inLanguage: 'ko-KR',
+  };
+
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
       <div className="max-w-3xl mx-auto px-6 py-16">
         <Link
           href="/"
