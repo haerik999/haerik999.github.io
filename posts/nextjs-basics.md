@@ -1,6 +1,7 @@
 ---
 title: "Next.js 기초 개념"
 date: "2025-12-18"
+category: "Next.js"
 excerpt: "Next.js의 기본 개념과 App Router에 대해 알아봅니다."
 ---
 

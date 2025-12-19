@@ -1,6 +1,7 @@
 ---
 title: "React Hooks 완벽 가이드"
 date: "2025-12-19"
+category: "React"
 excerpt: "React Hooks를 처음부터 이해하고 실무에서 활용하는 방법을 배워보세요."
 ---
 

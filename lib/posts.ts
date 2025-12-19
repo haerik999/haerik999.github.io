@@ -4,19 +4,29 @@ import matter from 'gray-matter';
 
 const postsDirectory = path.join(process.cwd(), 'posts');
 
+// 읽는 시간 계산 (평균 읽기 속도: 분당 200단어)
+function calculateReadTime(content: string): number {
+  const wordCount = content.split(/\s+/).length;
+  return Math.ceil(wordCount / 200);
+}
+
 export interface Post {
   slug: string;
   title: string;
   date: string;
+  category?: string;
   excerpt?: string;
   content: string;
+  readTime: number;
 }
 
 export interface PostMetadata {
   slug: string;
   title: string;
   date: string;
+  category?: string;
   excerpt?: string;
+  readTime: number;
 }
 
 export function getAllPosts(): PostMetadata[] {
@@ -27,14 +37,16 @@ export function getAllPosts(): PostMetadata[] {
     .map((file) => {
       const filePath = path.join(postsDirectory, file);
       const fileContents = fs.readFileSync(filePath, 'utf8');
-      const { data } = matter(fileContents);
+      const { data, content } = matter(fileContents);
       const slug = file.replace('.md', '');
 
       return {
         slug,
         title: data.title || slug,
         date: data.date || new Date().toISOString(),
+        category: data.category || 'General',
         excerpt: data.excerpt || '',
+        readTime: calculateReadTime(content),
       };
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -51,8 +63,10 @@ export function getPostBySlug(slug: string): Post {
     slug,
     title: data.title || slug,
     date: data.date || new Date().toISOString(),
+    category: data.category || 'General',
     excerpt: data.excerpt || '',
     content,
+    readTime: calculateReadTime(content),
   };
 }
 

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import dayjs from 'dayjs';
-import { Calendar } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { getPostBySlug, getPostSlugs } from '@/lib/posts';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 
@@ -100,14 +100,23 @@ export default async function PostPage({
 
         <article>
           <header className="mb-16 pb-12 border-b border-gray-100">
-            <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6 leading-tight">
+            <h1 className="text-3xl md:text-4xl font-light text-gray-900 mb-6 leading-tight">
               {post.title}
             </h1>
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
-              <Calendar size={16} />
-              <time dateTime={post.date}>
-                {dayjs(post.date).format('YYYY년 M월 D일')}
-              </time>
+            <div className="flex flex-wrap items-center gap-4 text-gray-400 text-sm">
+              <span className="px-2 py-1 bg-gray-50 rounded text-gray-600">
+                {post.category}
+              </span>
+              <div className="flex items-center gap-1">
+                <Calendar size={14} />
+                <time dateTime={post.date}>
+                  {dayjs(post.date).format('YYYY년 M월 D일')}
+                </time>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock size={14} />
+                <span>{post.readTime}분 읽음</span>
+              </div>
             </div>
           </header>
 
