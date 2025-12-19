@@ -3,32 +3,32 @@
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import React from 'react';
 import hljs from 'highlight.js';
-import 'highlight.js/styles/atom-one-dark.css';
+import 'highlight.js/styles/atom-one-light.css';
 
 const components = {
   h1: ({ children }: { children: React.ReactNode }) => (
-    <h1 className="text-4xl font-bold mt-8 mb-4 text-gray-900 border-b-2 border-blue-200 pb-3">
+    <h1 className="text-4xl font-light mt-12 mb-6 text-gray-900 border-b border-gray-200 pb-4">
       {children}
     </h1>
   ),
   h2: ({ children }: { children: React.ReactNode }) => (
-    <h2 className="text-3xl font-bold mt-8 mb-4 text-gray-800 text-blue-600">
+    <h2 className="text-3xl font-light mt-10 mb-5 text-gray-900">
       {children}
     </h2>
   ),
   h3: ({ children }: { children: React.ReactNode }) => (
-    <h3 className="text-2xl font-bold mt-6 mb-3 text-gray-800">{children}</h3>
+    <h3 className="text-2xl font-light mt-8 mb-4 text-gray-800">{children}</h3>
   ),
   p: ({ children }: { children: React.ReactNode }) => (
-    <p className="text-lg leading-relaxed mb-4 text-gray-700">{children}</p>
+    <p className="text-base leading-relaxed mb-6 text-gray-700">{children}</p>
   ),
   ul: ({ children }: { children: React.ReactNode }) => (
-    <ul className="list-disc list-inside mb-4 ml-4 text-gray-700 space-y-1">
+    <ul className="list-disc list-inside mb-6 ml-2 text-gray-700 space-y-2">
       {children}
     </ul>
   ),
   ol: ({ children }: { children: React.ReactNode }) => (
-    <ol className="list-decimal list-inside mb-4 ml-4 text-gray-700 space-y-1">
+    <ol className="list-decimal list-inside mb-6 ml-2 text-gray-700 space-y-2">
       {children}
     </ol>
   ),
@@ -36,7 +36,7 @@ const components = {
     <li className="text-gray-700">{children}</li>
   ),
   code: ({ children }: { children: React.ReactNode }) => (
-    <code className="bg-blue-50 px-2 py-1 rounded text-sm font-mono text-blue-600 border border-blue-200">
+    <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800 border border-gray-200">
       {children}
     </code>
   ),
@@ -64,23 +64,23 @@ const components = {
     }
 
     return (
-      <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm border-l-4 border-blue-400 shadow-lg">
+      <pre className="bg-gray-50 text-gray-800 p-4 rounded-lg overflow-x-auto mb-6 text-sm border border-gray-200">
         <code
-          className="text-slate-100"
+          className="text-gray-800 font-mono"
           dangerouslySetInnerHTML={{ __html: highlightedCode }}
         />
       </pre>
     );
   },
   blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="border-l-4 border-blue-400 pl-4 italic text-gray-700 my-4 bg-blue-50 py-3 rounded-r-lg">
+    <blockquote className="border-l-3 border-gray-300 pl-4 italic text-gray-600 my-6 py-2">
       {children}
     </blockquote>
   ),
   a: ({ href, children }: { href: string; children: React.ReactNode }) => (
     <a
       href={href}
-      className="text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
+      className="text-gray-900 hover:text-gray-600 hover:underline transition-colors"
     >
       {children}
     </a>

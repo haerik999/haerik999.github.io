@@ -18,32 +18,31 @@ export default async function PostPage({
   const post = getPostBySlug(slug);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
+    <main className="min-h-screen bg-white">
+      <div className="max-w-3xl mx-auto px-6 py-16">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm mb-12 transition-colors"
         >
-          ← 돌아가기
+          <span>←</span>
+          <span>돌아가기</span>
         </Link>
 
-        <article className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-8 md:p-12">
-            <header className="mb-8 pb-8 border-b border-gray-200">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                {post.title}
-              </h1>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Calendar size={18} />
-                <time dateTime={post.date}>
-                  {dayjs(post.date).format('YYYY년 M월 D일')}
-                </time>
-              </div>
-            </header>
-
-            <div className="prose prose-lg max-w-none">
-              <MarkdownRenderer content={post.content} />
+        <article>
+          <header className="mb-16 pb-12 border-b border-gray-100">
+            <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6 leading-tight">
+              {post.title}
+            </h1>
+            <div className="flex items-center gap-2 text-gray-400 text-sm">
+              <Calendar size={16} />
+              <time dateTime={post.date}>
+                {dayjs(post.date).format('YYYY년 M월 D일')}
+              </time>
             </div>
+          </header>
+
+          <div className="prose prose-lg max-w-none">
+            <MarkdownRenderer content={post.content} />
           </div>
         </article>
       </div>
