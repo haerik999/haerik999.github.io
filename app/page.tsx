@@ -7,7 +7,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white">
-      <div className="max-w-3xl mx-auto px-6 py-32">
+      <div className="max-w-3xl mx-auto px-6 py-16">
         {/* Header */}
         <div className="mb-24">
           <div className="flex items-center gap-2 mb-6">
