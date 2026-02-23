@@ -4,6 +4,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import React from 'react';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-light.css';
+import { CodeRunner } from './CodeRunner';
 
 const components = {
   h1: ({ children }: { children: React.ReactNode }) => (
@@ -45,7 +46,7 @@ const components = {
     let language = 'javascript';
 
     React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child) && child.type === 'code') {
+      if (React.isValidElement(child)) {
         const props = child.props as Record<string, unknown>;
         const className = (props.className as string) || '';
         const match = className.match(/language-(\w+)/);
@@ -55,6 +56,29 @@ const components = {
         codeContent = (props.children as string) || '';
       }
     });
+
+    const OUTPUT_SEPARATOR = '---output---';
+    const separatorIndex = codeContent.indexOf(OUTPUT_SEPARATOR);
+
+    if (separatorIndex !== -1) {
+      const codePart = codeContent.substring(0, separatorIndex).trimEnd();
+      const outputPart = codeContent.substring(separatorIndex + OUTPUT_SEPARATOR.length).trimStart();
+
+      let highlightedCode = codePart;
+      try {
+        highlightedCode = hljs.highlight(codePart, { language, ignoreIllegals: true }).value;
+      } catch (e) {
+        highlightedCode = codePart;
+      }
+
+      return (
+        <CodeRunner
+          highlightedCode={highlightedCode}
+          output={outputPart}
+          language={language}
+        />
+      );
+    }
 
     let highlightedCode = codeContent;
     try {
