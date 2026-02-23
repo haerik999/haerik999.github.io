@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { getAllPosts, buildCategoryTree } from "@/lib/posts";
 import { SidebarProvider } from "@/components/sidebar/SidebarProvider";
-import { Sidebar } from "@/components/sidebar/Sidebar";
-import { MobileMenuButton } from "@/components/MobileMenuButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,9 +79,6 @@ export default function RootLayout({
     inLanguage: 'ko-KR',
   };
 
-  const posts = getAllPosts();
-  const categoryTree = buildCategoryTree(posts);
-
   return (
     <html lang="ko">
       <head>
@@ -99,13 +93,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SidebarProvider>
-          <div className="flex min-h-screen">
-            <Sidebar categoryTree={categoryTree} />
-            <main className="flex-1 min-w-0">
-              <MobileMenuButton />
-              {children}
-            </main>
-          </div>
+          {children}
         </SidebarProvider>
       </body>
     </html>

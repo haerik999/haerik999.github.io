@@ -16,6 +16,10 @@ function findFirstPost(node: CategoryNode): string | null {
   return null;
 }
 
+function getSubcategoryNames(node: CategoryNode): string[] {
+  return node.children.map(child => child.name);
+}
+
 export default function Home() {
   const posts = getAllPosts();
   const categoryTree = buildCategoryTree(posts);
@@ -23,26 +27,46 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-8 py-12">
+      <div className="max-w-5xl mx-auto px-8 py-12">
         {/* Header */}
-        <h1 className="text-3xl font-light text-gray-900 mb-3">Learning Dev</h1>
-        <p className="text-sm text-gray-500 mb-12">개발에 대해 배우고 학습한 개념들을 정리하는 위키입니다.</p>
+        <div className="mb-12">
+          <h1 className="text-3xl font-light text-gray-900 mb-3">Learning Dev</h1>
+          <p className="text-sm text-gray-500 mb-6">개발에 대해 배우고 학습한 개념들을 정리하는 위키입니다.</p>
+          <div className="flex items-center gap-4 text-sm text-gray-500">
+            <span>{posts.length}개 문서</span>
+            <span>·</span>
+            <span>{categoryTree.length}개 카테고리</span>
+            <span>·</span>
+            <Link href="/archive" className="hover:text-gray-900 transition-colors underline underline-offset-2">
+              전체 글 목록
+            </Link>
+          </div>
+        </div>
 
         {/* Category cards grid */}
-        <section className="mb-12">
-          <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 mb-4">
+        <section className="mb-16">
+          <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 mb-6">
             <FolderOpen size={18} className="text-gray-400" />
             카테고리
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {categoryTree.map((category) => {
               const firstSlug = findFirstPost(category);
               const href = firstSlug ? `/posts/${firstSlug}` : '#';
+              const subcategories = getSubcategoryNames(category);
+              const postCount = countPosts(category);
               return (
                 <Link key={category.path} href={href}>
-                  <div className="p-4 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors cursor-pointer">
-                    <h3 className="text-sm font-medium text-gray-900">{category.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{countPosts(category)}개 문서</p>
+                  <div className="group p-5 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-sm transition-all cursor-pointer h-full">
+                    <h3 className="text-base font-medium text-gray-900 group-hover:text-gray-700">{category.name}</h3>
+                    <p className="text-sm text-gray-400 mt-1">{postCount}개 문서</p>
+                    {subcategories.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {subcategories.map(sub => (
+                          <span key={sub} className="text-xs px-2 py-0.5 bg-gray-50 text-gray-500 rounded-full">{sub}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </Link>
               );
@@ -52,19 +76,19 @@ export default function Home() {
 
         {/* Recent updates */}
         <section>
-          <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 mb-4">
+          <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 mb-6">
             <Clock size={18} className="text-gray-400" />
             최근 업데이트
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-0">
             {recentPosts.map((post) => (
               <Link key={post.slug} href={`/posts/${post.slug}`}>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <FileText size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-900">{post.title}</span>
+                <div className="flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors px-2 -mx-2 rounded">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText size={14} className="text-gray-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-900 truncate">{post.title}</span>
                     {post.category && (
-                      <span className="text-xs px-1.5 py-0.5 bg-gray-50 rounded text-gray-500">{post.category}</span>
+                      <span className="text-xs px-1.5 py-0.5 bg-gray-50 rounded text-gray-500 flex-shrink-0">{post.category}</span>
                     )}
                   </div>
                   <span className="text-xs text-gray-400 shrink-0 ml-4">{dayjs(post.date).format('YYYY.MM.DD')}</span>
