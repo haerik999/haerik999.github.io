@@ -33,3 +33,9 @@ body {
 .terminal-output {
   animation: fadeIn 0.25s ease-out;
 }
+
+/* Sidebar backdrop (mobile) */
+.sidebar-backdrop {
+  background: rgba(0, 0, 0, 0.3);
+  transition: opacity 200ms ease-out;
+}

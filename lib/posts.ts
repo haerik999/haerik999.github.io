@@ -29,6 +29,13 @@ export interface PostMetadata {
   readTime: number;
 }
 
+export interface CategoryNode {
+  name: string;
+  path: string;
+  children: CategoryNode[];
+  posts: PostMetadata[];
+}
+
 export function getAllPosts(): PostMetadata[] {
   if (!fs.existsSync(postsDirectory)) {
     return [];
@@ -83,4 +90,50 @@ export function getPostSlugs(): string[] {
   return files
     .filter((file) => file.endsWith('.md'))
     .map((file) => file.replace('.md', ''));
+}
+
+export function buildCategoryTree(posts: PostMetadata[]): CategoryNode[] {
+  const nodeMap = new Map<string, CategoryNode>();
+
+  function getOrCreateNode(nodePath: string): CategoryNode {
+    if (nodeMap.has(nodePath)) return nodeMap.get(nodePath)!;
+    const parts = nodePath.split('/');
+    const node: CategoryNode = { name: parts[parts.length - 1], path: nodePath, children: [], posts: [] };
+    nodeMap.set(nodePath, node);
+    return node;
+  }
+
+  for (const post of posts) {
+    const category = post.category || 'General';
+    const parts = category.split('/');
+
+    for (let i = 0; i < parts.length; i++) {
+      const nodePath = parts.slice(0, i + 1).join('/');
+      const node = getOrCreateNode(nodePath);
+
+      if (i > 0) {
+        const parentPath = parts.slice(0, i).join('/');
+        const parent = getOrCreateNode(parentPath);
+        if (!parent.children.some(c => c.path === node.path)) {
+          parent.children.push(node);
+        }
+      }
+
+      if (i === parts.length - 1) {
+        node.posts.push(post);
+      }
+    }
+  }
+
+  const sortNodes = (nodes: CategoryNode[]): void => {
+    nodes.sort((a, b) => a.name.localeCompare(b.name));
+    for (const node of nodes) {
+      node.posts.sort((a, b) => a.title.localeCompare(b.title));
+      sortNodes(node.children);
+    }
+  };
+
+  const roots = Array.from(nodeMap.values()).filter(node => !node.path.includes('/'));
+  sortNodes(roots);
+  return roots;
 }

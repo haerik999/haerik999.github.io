@@ -42,7 +42,6 @@ next-env.d.ts
 
 # study folder (local development)
 /study
-/scripts
 
 # claude
 CLAUDE.md

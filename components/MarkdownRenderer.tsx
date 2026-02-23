@@ -101,20 +101,67 @@ const components = {
       {children}
     </blockquote>
   ),
-  a: ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <a
-      href={href}
-      className="text-gray-900 hover:text-gray-600 hover:underline transition-colors"
-    >
-      {children}
-    </a>
-  ),
+  a: ({ href, children }: { href?: string; children: React.ReactNode }) => {
+    const isInternal = href?.startsWith('/posts/');
+    return (
+      <a
+        href={href}
+        className={isInternal
+          ? "text-blue-700 hover:text-blue-500 hover:underline transition-colors"
+          : "text-gray-900 hover:text-gray-600 hover:underline transition-colors"
+        }
+      >
+        {children}
+      </a>
+    );
+  },
 };
 
-export function MarkdownRenderer({ content }: { content: string }) {
+interface MarkdownRendererProps {
+  content: string;
+  allSlugs?: string[];
+}
+
+function processWikiLinks(content: string, allSlugs: string[]): string {
+  // First, extract code blocks to protect them from processing
+  const codeBlocks: string[] = [];
+  let processed = content.replace(/```[\s\S]*?```/g, (match) => {
+    codeBlocks.push(match);
+    return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+  });
+
+  // Also protect inline code
+  const inlineCode: string[] = [];
+  processed = processed.replace(/`[^`]+`/g, (match) => {
+    inlineCode.push(match);
+    return `__INLINE_CODE_${inlineCode.length - 1}__`;
+  });
+
+  // Process [[slug]] and [[slug|display text]]
+  processed = processed.replace(/\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]/g, (_, slug, displayText) => {
+    const trimmedSlug = slug.trim();
+    const display = displayText?.trim() || trimmedSlug;
+    if (allSlugs.includes(trimmedSlug)) {
+      return `[${display}](/posts/${trimmedSlug})`;
+    }
+    // Dead link - render as strikethrough red text
+    return `~~${display}~~`;
+  });
+
+  // Restore inline code
+  processed = processed.replace(/__INLINE_CODE_(\d+)__/g, (_, i) => inlineCode[Number(i)]);
+
+  // Restore code blocks
+  processed = processed.replace(/__CODE_BLOCK_(\d+)__/g, (_, i) => codeBlocks[Number(i)]);
+
+  return processed;
+}
+
+export function MarkdownRenderer({ content, allSlugs = [] }: MarkdownRendererProps) {
+  const processedContent = processWikiLinks(content, allSlugs);
   return (
     <div className="prose prose-lg max-w-4xl">
-      <MDXRemote source={content} components={components} />
+      <MDXRemote source={processedContent} components={components} />
     </div>
   );
 }

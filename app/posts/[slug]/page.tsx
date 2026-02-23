@@ -1,9 +1,10 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import dayjs from 'dayjs';
 import { Calendar, Clock } from 'lucide-react';
-import { getPostBySlug, getPostSlugs } from '@/lib/posts';
+import { getPostBySlug, getPostSlugs, getAllPosts } from '@/lib/posts';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { Breadcrumb } from '@/components/Breadcrumb';
+import { PrevNextNav } from '@/components/PrevNextNav';
 
 const siteURL = 'https://haerik999.github.io';
 const siteName = 'Learning Dev';
@@ -27,8 +28,8 @@ export async function generateMetadata({
     title: post.title,
     description:
       post.excerpt ||
-      '개발 개념 정리 블로그 - Learning Dev',
-    keywords: [post.title, '개발 블로그', '기술 포스트'],
+      '개발 개념 정리 위키 - Learning Dev',
+    keywords: [post.title, '개발 위키', '기술 포스트'],
     authors: [{ name: 'haerik999' }],
     openGraph: {
       type: 'article',
@@ -38,7 +39,7 @@ export async function generateMetadata({
       title: post.title,
       description:
         post.excerpt ||
-        '개발 개념 정리 블로그 - Learning Dev',
+        '개발 개념 정리 위키 - Learning Dev',
       publishedTime: post.date,
       authors: ['haerik999'],
     },
@@ -47,7 +48,7 @@ export async function generateMetadata({
       title: post.title,
       description:
         post.excerpt ||
-        '개발 개념 정리 블로그 - Learning Dev',
+        '개발 개념 정리 위키 - Learning Dev',
     },
     alternates: {
       canonical: postURL,
@@ -63,9 +64,23 @@ export default async function PostPage({
   const { slug } = await params;
   const post = getPostBySlug(slug);
 
+  const allSlugs = getPostSlugs();
+
+  const allPosts = getAllPosts();
+  const sameCategoryPosts = allPosts
+    .filter(p => (p.category || 'General') === (post.category || 'General'))
+    .sort((a, b) => a.title.localeCompare(b.title));
+  const currentIndex = sameCategoryPosts.findIndex(p => p.slug === slug);
+  const prevPost = currentIndex > 0
+    ? { slug: sameCategoryPosts[currentIndex - 1].slug, title: sameCategoryPosts[currentIndex - 1].title }
+    : null;
+  const nextPost = currentIndex < sameCategoryPosts.length - 1
+    ? { slug: sameCategoryPosts[currentIndex + 1].slug, title: sameCategoryPosts[currentIndex + 1].title }
+    : null;
+
   const schemaData = {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@type': 'TechArticle',
     headline: post.title,
     description: post.excerpt || '개발 개념 정리 글',
     datePublished: post.date,
@@ -89,14 +104,10 @@ export default async function PostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm mb-12 transition-colors"
-        >
-          <span>←</span>
-          <span>돌아가기</span>
-        </Link>
+      <div className="max-w-4xl mx-auto px-8 py-12">
+        <div className="mb-8">
+          <Breadcrumb category={post.category || 'General'} />
+        </div>
 
         <article>
           <header className="mb-16 pb-12 border-b border-gray-100">
@@ -121,8 +132,10 @@ export default async function PostPage({
           </header>
 
           <div className="prose prose-lg max-w-none">
-            <MarkdownRenderer content={post.content} />
+            <MarkdownRenderer content={post.content} allSlugs={allSlugs} />
           </div>
+
+          <PrevNextNav prevPost={prevPost} nextPost={nextPost} />
         </article>
       </div>
     </main>

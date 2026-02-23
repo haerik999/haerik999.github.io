@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getAllPosts, buildCategoryTree } from "@/lib/posts";
+import { SidebarProvider } from "@/components/sidebar/SidebarProvider";
+import { Sidebar } from "@/components/sidebar/Sidebar";
+import { MobileMenuButton } from "@/components/MobileMenuButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +19,7 @@ const geistMono = Geist_Mono({
 const siteURL = "https://haerik999.github.io";
 const siteTitle = "Learning Dev";
 const siteDescription =
-  "개발을 공부하며 정리한 개념들을 공유하는 블로그입니다. JavaScript, React, Next.js, TypeScript 등 다양한 개발 주제를 다룹니다.";
+  "개발에 대해 배우고 학습한 개념들을 정리하는 위키입니다.";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -30,6 +34,8 @@ export const metadata: Metadata = {
   description: siteDescription,
   keywords: [
     "개발 블로그",
+    "개발 위키",
+    "지식 베이스",
     "JavaScript",
     "React",
     "Next.js",
@@ -65,7 +71,7 @@ export default function RootLayout({
 }>) {
   const schemaData = {
     '@context': 'https://schema.org',
-    '@type': 'Blog',
+    '@type': 'WebSite',
     name: siteTitle,
     description: siteDescription,
     url: siteURL,
@@ -75,6 +81,9 @@ export default function RootLayout({
     },
     inLanguage: 'ko-KR',
   };
+
+  const posts = getAllPosts();
+  const categoryTree = buildCategoryTree(posts);
 
   return (
     <html lang="ko">
@@ -89,7 +98,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SidebarProvider>
+          <div className="flex min-h-screen">
+            <Sidebar categoryTree={categoryTree} />
+            <main className="flex-1 min-w-0">
+              <MobileMenuButton />
+              {children}
+            </main>
+          </div>
+        </SidebarProvider>
       </body>
     </html>
   );
