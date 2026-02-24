@@ -3,6 +3,7 @@ title: "InfluxDB와 Grafana - IoT 센서 데이터 파이프라인 (3)"
 date: 2026-02-23
 category: IoT
 excerpt: "시계열 데이터의 개념부터 InfluxDB 데이터 모델, Grafana 대시보드 구성까지 - 센서 데이터를 저장하고 시각화하는 과정을 이해한다."
+order: 3
 ---
 
 # InfluxDB와 Grafana - IoT 센서 데이터 파이프라인 (3)

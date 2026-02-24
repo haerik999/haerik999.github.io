@@ -25,6 +25,8 @@ function parseFrontmatter(raw) {
 
 function stripMarkdown(text) {
   return text
+    .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2')
+    .replace(/\[\[([^\]]+)\]\]/g, '$1')
     .replace(/```[\s\S]*?```/g, '')
     .replace(/`[^`]*`/g, '')
     .replace(/!\[.*?\]\(.*?\)/g, '')

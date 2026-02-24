@@ -3,6 +3,7 @@ title: "네트워크와 MQTT - IoT 센서 데이터 파이프라인 (2)"
 date: 2026-02-23
 category: IoT
 excerpt: "TCP/IP 기초부터 MQTT Pub/Sub 패턴, Mosquitto 브로커, paho-mqtt 라이브러리까지 - 센서 데이터를 네트워크로 전달하는 과정을 이해한다."
+order: 2
 ---
 
 # 네트워크와 MQTT

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import dayjs from 'dayjs';
 import { FolderOpen, Clock, FileText } from 'lucide-react';
 import { getAllPosts, buildCategoryTree, CategoryNode } from '@/lib/posts';
+import { SearchTrigger } from '@/components/SearchTrigger';
 
 function countPosts(node: CategoryNode): number {
   return node.posts.length + node.children.reduce((sum, child) => sum + countPosts(child), 0);
@@ -32,14 +33,14 @@ export default function Home() {
         <div className="mb-12">
           <h1 className="text-3xl font-light text-gray-900 mb-3">Learning Dev</h1>
           <p className="text-sm text-gray-500 mb-6">개발에 대해 배우고 학습한 개념들을 정리하는 위키입니다.</p>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+
+          {/* Search trigger */}
+          <SearchTrigger />
+
+          <div className="flex items-center gap-4 text-sm text-gray-500 mt-4">
             <span>{posts.length}개 문서</span>
             <span>·</span>
             <span>{categoryTree.length}개 카테고리</span>
-            <span>·</span>
-            <Link href="/archive" className="hover:text-gray-900 transition-colors underline underline-offset-2">
-              전체 글 목록
-            </Link>
           </div>
         </div>
 

@@ -3,6 +3,7 @@ title: "하드웨어와 시리얼 통신 - IoT 센서 데이터 파이프라인 
 date: 2026-02-23
 category: IoT
 excerpt: "MCU, Arduino, DHT22 센서에서 Python까지 - 물리적 센서 데이터가 코드로 전달되는 과정을 이해한다."
+order: 1
 ---
 
 # 하드웨어와 시리얼 통신

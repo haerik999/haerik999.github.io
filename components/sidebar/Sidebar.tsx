@@ -2,16 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { X, ArrowLeft } from 'lucide-react';
+import { X, ArrowLeft, Search } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { CategoryNode, PostMetadata } from '@/lib/posts';
 import { useSidebar } from './SidebarProvider';
 import { CategoryTree } from './CategoryTree';
-import { SearchBox } from './SearchBox';
+import { useCommandPalette } from '@/components/CommandPalette';
 
 interface SidebarProps {
   categoryTree: CategoryNode[];
   allPosts: PostMetadata[];
 }
+
+const SIDEBAR_WIDTH_KEY = 'wiki-sidebar-width';
+const DEFAULT_WIDTH = 256;
+const MIN_WIDTH = 200;
+const MAX_WIDTH = 480;
 
 function findTopCategory(allPosts: PostMetadata[], slug: string): string | null {
   const post = allPosts.find(p => p.slug === slug);
@@ -21,6 +27,7 @@ function findTopCategory(allPosts: PostMetadata[], slug: string): string | null 
 
 export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
   const { isOpen, close } = useSidebar();
+  const { open: openSearch } = useCommandPalette();
   const pathname = usePathname();
   const currentSlug = pathname.replace('/posts/', '');
 
@@ -28,6 +35,63 @@ export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
   const filteredTree = topCategory
     ? categoryTree.filter(node => node.name === topCategory)
     : categoryTree;
+
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+  const dragStartWidth = useRef(DEFAULT_WIDTH);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed) && parsed >= MIN_WIDTH && parsed <= MAX_WIDTH) {
+        setSidebarWidth(parsed);
+      }
+    }
+  }, []);
+
+  const onMouseMove = useCallback((e: MouseEvent) => {
+    const delta = e.clientX - dragStartX.current;
+    const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, dragStartWidth.current + delta));
+    setSidebarWidth(newWidth);
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    setIsDragging(false);
+    setSidebarWidth(prev => {
+      localStorage.setItem(SIDEBAR_WIDTH_KEY, String(prev));
+      return prev;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging, onMouseMove, onMouseUp]);
+
+  const onHandleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = sidebarWidth;
+    setIsDragging(true);
+  }, [sidebarWidth]);
 
   return (
     <>
@@ -47,6 +111,7 @@ export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
           lg:translate-x-0 lg:static lg:z-auto lg:block
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
+        style={{ width: `${sidebarWidth}px` }}
       >
         {/* Header */}
         <div className="px-4 py-4 border-b border-gray-100">
@@ -71,14 +136,33 @@ export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
         </div>
 
         {/* Search */}
-        <div className="border-b border-gray-100">
-          <SearchBox />
+        <div className="border-b border-gray-100 px-3 py-2">
+          <button
+            onClick={openSearch}
+            className="flex items-center gap-2 w-full px-2.5 py-1.5 text-sm text-gray-400 bg-gray-50 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-white transition-colors cursor-pointer"
+          >
+            <Search size={14} className="shrink-0" />
+            <span className="flex-1 text-left text-xs">Search... (Ctrl+K)</span>
+          </button>
         </div>
 
         {/* Category tree */}
         <nav className="px-2 py-3">
           <CategoryTree categoryTree={filteredTree} />
         </nav>
+
+        {/* Resize handle (desktop only) */}
+        <div
+          onMouseDown={onHandleMouseDown}
+          className="hidden lg:flex absolute top-0 right-0 bottom-0 w-3 items-center justify-center group cursor-col-resize z-10"
+          aria-hidden="true"
+        >
+          <div
+            className={`w-0.5 h-full transition-colors ${
+              isDragging ? 'bg-blue-400' : 'bg-transparent group-hover:bg-gray-300'
+            }`}
+          />
+        </div>
       </aside>
     </>
   );

@@ -3,6 +3,7 @@ title: "설정 관리와 소프트웨어 설계 - IoT 센서 데이터 파이프
 date: 2026-02-23
 category: IoT
 excerpt: "설정 외부화, 재연결 전략, Graceful Shutdown, 로깅, 에러 처리 - 24시간 운영 가능한 안정적인 IoT 파이프라인을 만드는 설계 원칙을 이해한다."
+order: 4
 ---
 
 # 설정 관리와 소프트웨어 설계

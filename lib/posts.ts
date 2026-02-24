@@ -16,6 +16,7 @@ export interface Post {
   date: string;
   category?: string;
   excerpt?: string;
+  order?: number;
   content: string;
   readTime: number;
 }
@@ -26,6 +27,7 @@ export interface PostMetadata {
   date: string;
   category?: string;
   excerpt?: string;
+  order?: number;
   readTime: number;
 }
 
@@ -57,10 +59,18 @@ export function getAllPosts(): PostMetadata[] {
         date: data.date || new Date().toISOString(),
         category: data.category || 'General',
         excerpt: data.excerpt || '',
+        order: data.order,
         readTime: calculateReadTime(content),
       };
     })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => {
+      const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+      if (a.order !== undefined) return -1;
+      if (b.order !== undefined) return 1;
+      return a.title.localeCompare(b.title);
+    });
 
   return posts;
 }
@@ -128,7 +138,12 @@ export function buildCategoryTree(posts: PostMetadata[]): CategoryNode[] {
   const sortNodes = (nodes: CategoryNode[]): void => {
     nodes.sort((a, b) => a.name.localeCompare(b.name));
     for (const node of nodes) {
-      node.posts.sort((a, b) => a.title.localeCompare(b.title));
+      node.posts.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        return a.title.localeCompare(b.title);
+      });
       sortNodes(node.children);
     }
   };
