@@ -2,12 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { X, ArrowLeft, Search } from 'lucide-react';
+import { X, ArrowLeft } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { CategoryNode, PostMetadata } from '@/lib/posts';
 import { useSidebar } from './SidebarProvider';
 import { CategoryTree } from './CategoryTree';
-import { useCommandPalette } from '@/components/CommandPalette';
 
 interface SidebarProps {
   categoryTree: CategoryNode[];
@@ -27,7 +26,6 @@ function findTopCategory(allPosts: PostMetadata[], slug: string): string | null 
 
 export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
   const { isOpen, close } = useSidebar();
-  const { open: openSearch } = useCommandPalette();
   const pathname = usePathname();
   const currentSlug = pathname.replace('/posts/', '');
 
@@ -139,17 +137,6 @@ export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
         <nav className="px-2 py-3">
           <CategoryTree categoryTree={filteredTree} />
         </nav>
-
-        {/* Search */}
-        <div className="border-t border-gray-100 px-3 py-2">
-          <button
-            onClick={openSearch}
-            className="flex items-center gap-2 w-full px-2.5 py-1.5 text-sm text-gray-400 bg-gray-50 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-white transition-colors cursor-pointer"
-          >
-            <Search size={14} className="shrink-0" />
-            <span className="flex-1 text-left text-xs">Search... (Ctrl+K)</span>
-          </button>
-        </div>
 
         {/* Resize handle (desktop only) */}
         <div

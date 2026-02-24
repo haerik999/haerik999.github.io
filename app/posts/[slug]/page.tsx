@@ -5,6 +5,7 @@ import { getPostBySlug, getPostSlugs, getAllPosts } from '@/lib/posts';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { PrevNextNav } from '@/components/PrevNextNav';
+import { SearchTrigger } from '@/components/SearchTrigger';
 
 const siteURL = 'https://haerik999.github.io';
 const siteName = 'Learning Dev';
@@ -111,9 +112,12 @@ export default async function PostPage({
 
         <article>
           <header className="mb-16 pb-12 border-b border-gray-100">
-            <h1 className="text-3xl md:text-4xl font-light text-gray-900 mb-6 leading-tight">
-              {post.title}
-            </h1>
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <h1 className="text-3xl md:text-4xl font-light text-gray-900 leading-tight">
+                {post.title}
+              </h1>
+              <SearchTrigger />
+            </div>
             <div className="flex flex-wrap items-center gap-4 text-gray-400 text-sm">
               <span className="px-2 py-1 bg-gray-50 rounded text-gray-600">
                 {post.category}

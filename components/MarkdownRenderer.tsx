@@ -2,6 +2,7 @@
 
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import React from 'react';
+import remarkGfm from 'remark-gfm';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-light.css';
 import { CodeRunner } from './CodeRunner';
@@ -96,6 +97,28 @@ const components = {
       </pre>
     );
   },
+  table: ({ children }: { children: React.ReactNode }) => (
+    <div className="overflow-x-auto mb-6">
+      <table className="min-w-full text-sm border-collapse border border-gray-200">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }: { children: React.ReactNode }) => (
+    <thead className="bg-gray-50">{children}</thead>
+  ),
+  tbody: ({ children }: { children: React.ReactNode }) => (
+    <tbody className="divide-y divide-gray-200">{children}</tbody>
+  ),
+  tr: ({ children }: { children: React.ReactNode }) => (
+    <tr className="border-b border-gray-100">{children}</tr>
+  ),
+  th: ({ children }: { children: React.ReactNode }) => (
+    <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 border border-gray-200">{children}</th>
+  ),
+  td: ({ children }: { children: React.ReactNode }) => (
+    <td className="px-3 py-2 text-sm text-gray-700 border border-gray-200">{children}</td>
+  ),
   blockquote: ({ children }: { children: React.ReactNode }) => (
     <blockquote className="border-l-3 border-gray-300 pl-4 italic text-gray-600 my-6 py-2">
       {children}
@@ -161,7 +184,11 @@ export function MarkdownRenderer({ content, allSlugs = [] }: MarkdownRendererPro
   const processedContent = processWikiLinks(content, allSlugs);
   return (
     <div className="prose prose-lg max-w-4xl">
-      <MDXRemote source={processedContent} components={components} />
+      <MDXRemote
+        source={processedContent}
+        components={components}
+        options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+      />
     </div>
   );
 }
