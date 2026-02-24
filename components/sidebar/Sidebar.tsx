@@ -108,7 +108,7 @@ export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
         className={`
           relative fixed top-0 left-0 z-30 h-screen w-64 bg-white border-r border-gray-200 overflow-y-auto
           transition-transform duration-200
-          lg:translate-x-0 lg:static lg:z-auto lg:block
+          lg:translate-x-0 lg:sticky lg:top-0 lg:z-auto lg:block lg:h-screen
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
         style={{ width: `${sidebarWidth}px` }}
