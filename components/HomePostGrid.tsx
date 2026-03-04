@@ -75,7 +75,7 @@ export function HomePostGrid({ posts }: HomePostGridProps) {
           </p>
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-6">
           {filteredPosts.map((post) => {
             const topCategory = getTopCategory(post.category);
             const theme = getCategoryTheme(post.category);
