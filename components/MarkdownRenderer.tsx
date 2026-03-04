@@ -6,139 +6,166 @@ import remarkGfm from 'remark-gfm';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-light.css';
 import { CodeRunner } from './CodeRunner';
+import { createHeadingIdGenerator } from '@/lib/markdown';
 
-const components = {
-  h1: ({ children }: { children: React.ReactNode }) => (
-    <h1 className="text-[28px] font-extrabold leading-[1.3] mt-10 mb-5 text-gray-900 border-b border-gray-200 pb-3">
-      {children}
-    </h1>
-  ),
-  h2: ({ children }: { children: React.ReactNode }) => (
-    <h2 className="text-[23px] font-extrabold leading-normal mt-12 pt-[30px] pb-3 mb-4 text-gray-900">
-      {children}
-    </h2>
-  ),
-  h3: ({ children }: { children: React.ReactNode }) => (
-    <h3 className="text-xl font-bold leading-normal pt-5 pb-2.5 mt-6 mb-3 text-gray-800">{children}</h3>
-  ),
-  p: ({ children }: { children: React.ReactNode }) => (
-    <p className="text-base leading-[1.8] mb-5 text-gray-700">{children}</p>
-  ),
-  ul: ({ children }: { children: React.ReactNode }) => (
-    <ul className="list-disc list-inside mb-6 ml-2 text-base text-gray-700 space-y-2">
-      {children}
-    </ul>
-  ),
-  ol: ({ children }: { children: React.ReactNode }) => (
-    <ol className="list-decimal list-inside mb-6 ml-2 text-base text-gray-700 space-y-2">
-      {children}
-    </ol>
-  ),
-  li: ({ children }: { children: React.ReactNode }) => (
-    <li className="text-base text-gray-700">{children}</li>
-  ),
-  code: ({ children }: { children: React.ReactNode }) => (
-    <code className="bg-[#F6F9FC] px-1 py-0.5 rounded text-sm font-mono text-gray-900">
-      {children}
-    </code>
-  ),
-  pre: ({ children }: { children: React.ReactNode }) => {
-    let codeContent = '';
-    let language = 'javascript';
+function extractNodeText(node: React.ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map((item) => extractNodeText(item)).join('');
+  }
+  if (React.isValidElement(node)) {
+    const props = node.props as { children?: React.ReactNode };
+    return extractNodeText(props.children);
+  }
+  return '';
+}
 
-    React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child)) {
-        const props = child.props as Record<string, unknown>;
-        const className = (props.className as string) || '';
-        const match = className.match(/language-(\w+)/);
-        if (match) {
-          language = match[1];
+function createMdxComponents() {
+  const nextHeadingId = createHeadingIdGenerator();
+
+  return {
+    h1: ({ children }: { children: React.ReactNode }) => (
+      <h1 className="text-[28px] font-extrabold leading-[1.3] mt-10 mb-5 text-gray-900 border-b border-gray-200 pb-3">
+        {children}
+      </h1>
+    ),
+    h2: ({ children }: { children: React.ReactNode }) => {
+      const id = nextHeadingId(extractNodeText(children));
+      return (
+        <h2 id={id} className="scroll-mt-24 text-[23px] font-extrabold leading-normal mt-12 pt-[30px] pb-3 mb-4 text-gray-900">
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ children }: { children: React.ReactNode }) => {
+      const id = nextHeadingId(extractNodeText(children));
+      return (
+        <h3 id={id} className="scroll-mt-24 text-xl font-bold leading-normal pt-5 pb-2.5 mt-6 mb-3 text-gray-800">
+          {children}
+        </h3>
+      );
+    },
+    p: ({ children }: { children: React.ReactNode }) => (
+      <p className="text-base leading-[1.8] mb-5 text-gray-700">{children}</p>
+    ),
+    ul: ({ children }: { children: React.ReactNode }) => (
+      <ul className="list-disc list-inside mb-6 ml-2 text-base text-gray-700 space-y-2">
+        {children}
+      </ul>
+    ),
+    ol: ({ children }: { children: React.ReactNode }) => (
+      <ol className="list-decimal list-inside mb-6 ml-2 text-base text-gray-700 space-y-2">
+        {children}
+      </ol>
+    ),
+    li: ({ children }: { children: React.ReactNode }) => (
+      <li className="text-base text-gray-700">{children}</li>
+    ),
+    code: ({ children }: { children: React.ReactNode }) => (
+      <code className="bg-[#F6F9FC] px-1 py-0.5 rounded text-sm font-mono text-gray-900">
+        {children}
+      </code>
+    ),
+    pre: ({ children }: { children: React.ReactNode }) => {
+      let codeContent = '';
+      let language = 'javascript';
+
+      React.Children.forEach(children, (child) => {
+        if (React.isValidElement(child)) {
+          const props = child.props as Record<string, unknown>;
+          const className = (props.className as string) || '';
+          const match = className.match(/language-(\w+)/);
+          if (match) {
+            language = match[1];
+          }
+          codeContent = (props.children as string) || '';
         }
-        codeContent = (props.children as string) || '';
+      });
+
+      const OUTPUT_SEPARATOR = '---output---';
+      const separatorIndex = codeContent.indexOf(OUTPUT_SEPARATOR);
+
+      if (separatorIndex !== -1) {
+        const codePart = codeContent.substring(0, separatorIndex).trimEnd();
+        const outputPart = codeContent.substring(separatorIndex + OUTPUT_SEPARATOR.length).trimStart();
+
+        let highlightedCode = codePart;
+        try {
+          highlightedCode = hljs.highlight(codePart, { language, ignoreIllegals: true }).value;
+        } catch {
+          highlightedCode = codePart;
+        }
+
+        return (
+          <CodeRunner
+            highlightedCode={highlightedCode}
+            output={outputPart}
+            language={language}
+          />
+        );
       }
-    });
 
-    const OUTPUT_SEPARATOR = '---output---';
-    const separatorIndex = codeContent.indexOf(OUTPUT_SEPARATOR);
-
-    if (separatorIndex !== -1) {
-      const codePart = codeContent.substring(0, separatorIndex).trimEnd();
-      const outputPart = codeContent.substring(separatorIndex + OUTPUT_SEPARATOR.length).trimStart();
-
-      let highlightedCode = codePart;
+      let highlightedCode = codeContent;
       try {
-        highlightedCode = hljs.highlight(codePart, { language, ignoreIllegals: true }).value;
-      } catch (e) {
-        highlightedCode = codePart;
+        highlightedCode = hljs.highlight(codeContent, { language, ignoreIllegals: true }).value;
+      } catch {
+        highlightedCode = codeContent;
       }
 
       return (
-        <CodeRunner
-          highlightedCode={highlightedCode}
-          output={outputPart}
-          language={language}
-        />
+        <pre className="bg-gray-50 text-gray-800 p-4 rounded-lg overflow-x-auto mb-6 text-sm border border-gray-200">
+          <code
+            className="text-gray-800 font-mono"
+            dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          />
+        </pre>
       );
-    }
-
-    let highlightedCode = codeContent;
-    try {
-      highlightedCode = hljs.highlight(codeContent, { language, ignoreIllegals: true }).value;
-    } catch (e) {
-      highlightedCode = codeContent;
-    }
-
-    return (
-      <pre className="bg-gray-50 text-gray-800 p-4 rounded-lg overflow-x-auto mb-6 text-sm border border-gray-200">
-        <code
-          className="text-gray-800 font-mono"
-          dangerouslySetInnerHTML={{ __html: highlightedCode }}
-        />
-      </pre>
-    );
-  },
-  table: ({ children }: { children: React.ReactNode }) => (
-    <div className="overflow-x-auto mb-6">
-      <table className="min-w-full text-base border-collapse border border-gray-200">
+    },
+    table: ({ children }: { children: React.ReactNode }) => (
+      <div className="overflow-x-auto mb-6">
+        <table className="min-w-full text-base border-collapse border border-gray-200">
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children }: { children: React.ReactNode }) => (
+      <thead className="bg-gray-50">{children}</thead>
+    ),
+    tbody: ({ children }: { children: React.ReactNode }) => (
+      <tbody className="divide-y divide-gray-200">{children}</tbody>
+    ),
+    tr: ({ children }: { children: React.ReactNode }) => (
+      <tr className="border-b border-gray-100">{children}</tr>
+    ),
+    th: ({ children }: { children: React.ReactNode }) => (
+      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 border border-gray-200">{children}</th>
+    ),
+    td: ({ children }: { children: React.ReactNode }) => (
+      <td className="px-3 py-2 text-base text-gray-700 border border-gray-200">{children}</td>
+    ),
+    blockquote: ({ children }: { children: React.ReactNode }) => (
+      <blockquote className="pl-5 text-base text-[#90949A] my-4 py-2 italic">
         {children}
-      </table>
-    </div>
-  ),
-  thead: ({ children }: { children: React.ReactNode }) => (
-    <thead className="bg-gray-50">{children}</thead>
-  ),
-  tbody: ({ children }: { children: React.ReactNode }) => (
-    <tbody className="divide-y divide-gray-200">{children}</tbody>
-  ),
-  tr: ({ children }: { children: React.ReactNode }) => (
-    <tr className="border-b border-gray-100">{children}</tr>
-  ),
-  th: ({ children }: { children: React.ReactNode }) => (
-    <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 border border-gray-200">{children}</th>
-  ),
-  td: ({ children }: { children: React.ReactNode }) => (
-    <td className="px-3 py-2 text-base text-gray-700 border border-gray-200">{children}</td>
-  ),
-  blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="pl-5 text-base text-[#90949A] my-4 py-2 italic">
-      {children}
-    </blockquote>
-  ),
-  a: ({ href, children }: { href?: string; children: React.ReactNode }) => {
-    const isInternal = href?.startsWith('/posts/');
-    return (
-      <a
-        href={href}
-        className={isInternal
-          ? "text-blue-700 hover:text-blue-500 hover:underline transition-colors"
-          : "text-gray-900 hover:text-gray-600 hover:underline transition-colors"
-        }
-      >
-        {children}
-      </a>
-    );
-  },
-};
+      </blockquote>
+    ),
+    a: ({ href, children }: { href?: string; children: React.ReactNode }) => {
+      const isInternal = href?.startsWith('/posts/');
+      return (
+        <a
+          href={href}
+          className={isInternal
+            ? 'text-blue-700 hover:text-blue-500 hover:underline transition-colors'
+            : 'text-gray-900 hover:text-gray-600 hover:underline transition-colors'
+          }
+        >
+          {children}
+        </a>
+      );
+    },
+  };
+}
 
 interface MarkdownRendererProps {
   content: string;
@@ -182,6 +209,7 @@ function processWikiLinks(content: string, allSlugs: string[]): string {
 
 export function MarkdownRenderer({ content, allSlugs = [] }: MarkdownRendererProps) {
   const processedContent = processWikiLinks(content, allSlugs);
+  const components = createMdxComponents();
   return (
     <div className="prose prose-lg max-w-4xl">
       <MDXRemote

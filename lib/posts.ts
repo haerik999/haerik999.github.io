@@ -17,6 +17,7 @@ export interface Post {
   category?: string;
   excerpt?: string;
   order?: number;
+  coverImage?: string;
   tags: string[];
   content: string;
   readTime: number;
@@ -29,6 +30,7 @@ export interface PostMetadata {
   category?: string;
   excerpt?: string;
   order?: number;
+  coverImage?: string;
   tags: string[];
   readTime: number;
 }
@@ -85,6 +87,7 @@ export function getAllPosts(): PostMetadata[] {
         category: data.category || 'General',
         excerpt: data.excerpt || '',
         order: data.order,
+        coverImage: typeof data.coverImage === 'string' ? data.coverImage : undefined,
         tags: (data.tags as string[]) || [],
         readTime: calculateReadTime(content),
       };
@@ -112,6 +115,7 @@ export function getPostBySlug(slug: string): Post {
     date: data.date || new Date().toISOString(),
     category: data.category || 'General',
     excerpt: data.excerpt || '',
+    coverImage: typeof data.coverImage === 'string' ? data.coverImage : undefined,
     tags: (data.tags as string[]) || [],
     content,
     readTime: calculateReadTime(content),
@@ -197,6 +201,7 @@ function getAllPostsWithContent(): Post[] {
         category: data.category || 'General',
         excerpt: data.excerpt || '',
         order: data.order,
+        coverImage: typeof data.coverImage === 'string' ? data.coverImage : undefined,
         tags: (data.tags as string[]) || [],
         content,
         readTime: calculateReadTime(content),
