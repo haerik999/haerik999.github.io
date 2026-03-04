@@ -97,11 +97,6 @@ export function HomePostGrid({ posts }: HomePostGridProps) {
                     ) : (
                       <div className={`relative h-full w-full bg-gradient-to-br ${theme.cardGradientClass}`}>
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.7),transparent_50%)]" />
-                        <div className="absolute bottom-4 left-4">
-                          <span className={`rounded-full px-2 py-1 text-xs font-semibold ${theme.badgeClass}`}>
-                            {topCategory}
-                          </span>
-                        </div>
                       </div>
                     )}
                   </div>
