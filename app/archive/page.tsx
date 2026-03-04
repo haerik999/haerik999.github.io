@@ -3,7 +3,7 @@ import { ArchiveList } from '@/components/ArchiveList';
 
 export const metadata = {
   title: '전체 글 목록',
-  description: 'Learning Dev의 모든 글을 확인하세요.',
+  description: 'Haerik의 모든 글을 확인하세요.',
 };
 
 export default function ArchivePage() {

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import dayjs from 'dayjs';
-import { FolderOpen, Clock, FileText } from 'lucide-react';
+import { FolderOpen, Clock, FileText, Tag } from 'lucide-react';
 import { getAllPosts, buildCategoryTree, CategoryNode } from '@/lib/posts';
 import { SearchTrigger } from '@/components/SearchTrigger';
+import { KnowledgeGraph } from '@/components/KnowledgeGraph';
 
 function countPosts(node: CategoryNode): number {
   return node.posts.length + node.children.reduce((sum, child) => sum + countPosts(child), 0);
@@ -21,23 +22,41 @@ function getSubcategoryNames(node: CategoryNode): string[] {
   return node.children.map(child => child.name);
 }
 
+function collectAllTags(posts: { tags: string[] }[]): { tag: string; count: number }[] {
+  const tagCounts: Record<string, number> = {};
+  for (const post of posts) {
+    for (const tag of post.tags) {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    }
+  }
+  return Object.entries(tagCounts)
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
 export default function Home() {
   const posts = getAllPosts();
   const categoryTree = buildCategoryTree(posts);
   const recentPosts = posts.slice(0, 5);
+  const allTags = collectAllTags(posts);
 
   return (
     <main className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-8 py-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
-          <h1 className="text-3xl font-light text-gray-900">Learning Dev</h1>
+          <h1 className="text-4xl font-semibold text-gray-900">Haerik</h1>
           <SearchTrigger />
         </div>
 
+        {/* Knowledge Graph */}
+        <section className="mb-16">
+          <KnowledgeGraph />
+        </section>
+
         {/* Category cards grid */}
         <section className="mb-16">
-          <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 mb-6">
+          <h2 className="flex items-center gap-2 text-xl font-medium text-gray-900 mb-6">
             <FolderOpen size={18} className="text-gray-400" />
             카테고리
           </h2>
@@ -50,12 +69,12 @@ export default function Home() {
               return (
                 <Link key={category.path} href={href}>
                   <div className="group p-5 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-sm transition-all cursor-pointer h-full">
-                    <h3 className="text-base font-medium text-gray-900 group-hover:text-gray-700">{category.name}</h3>
-                    <p className="text-sm text-gray-400 mt-1">{postCount}개 문서</p>
+                    <h3 className="text-lg font-medium text-gray-900 group-hover:text-gray-700">{category.name}</h3>
+                    <p className="text-base text-gray-400 mt-1">{postCount}개 문서</p>
                     {subcategories.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-3">
                         {subcategories.map(sub => (
-                          <span key={sub} className="text-xs px-2 py-0.5 bg-gray-50 text-gray-500 rounded-full">{sub}</span>
+                          <span key={sub} className="text-sm px-2 py-0.5 bg-gray-50 text-gray-500 rounded-full">{sub}</span>
                         ))}
                       </div>
                     )}
@@ -66,9 +85,30 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Tags */}
+        {allTags.length > 0 && (
+          <section className="mb-16">
+            <h2 className="flex items-center gap-2 text-xl font-medium text-gray-900 mb-6">
+              <Tag size={18} className="text-gray-400" />
+              태그
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {allTags.map(({ tag, count }) => (
+                <span
+                  key={tag}
+                  className="text-base px-3 py-1 bg-gray-50 text-gray-600 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors"
+                >
+                  {tag}
+                  <span className="ml-1 text-xs text-gray-400">{count}</span>
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Recent updates */}
         <section>
-          <h2 className="flex items-center gap-2 text-lg font-medium text-gray-900 mb-6">
+          <h2 className="flex items-center gap-2 text-xl font-medium text-gray-900 mb-6">
             <Clock size={18} className="text-gray-400" />
             최근 업데이트
           </h2>
@@ -78,12 +118,12 @@ export default function Home() {
                 <div className="flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors px-2 -mx-2 rounded">
                   <div className="flex items-center gap-2 min-w-0">
                     <FileText size={14} className="text-gray-400 flex-shrink-0" />
-                    <span className="text-sm text-gray-900 truncate">{post.title}</span>
+                    <span className="text-base text-gray-900 truncate">{post.title}</span>
                     {post.category && (
-                      <span className="text-xs px-1.5 py-0.5 bg-gray-50 rounded text-gray-500 flex-shrink-0">{post.category}</span>
+                      <span className="text-sm px-1.5 py-0.5 bg-gray-50 rounded text-gray-500 flex-shrink-0">{post.category}</span>
                     )}
                   </div>
-                  <span className="text-xs text-gray-400 shrink-0 ml-4">{dayjs(post.date).format('YYYY.MM.DD')}</span>
+                  <span className="text-sm text-gray-400 shrink-0 ml-4">{dayjs(post.date).format('YYYY.MM.DD')}</span>
                 </div>
               </Link>
             ))}

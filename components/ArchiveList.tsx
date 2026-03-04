@@ -26,7 +26,7 @@ export function ArchiveList({ allPosts }: ArchiveListProps) {
         <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-4 leading-tight">
           모든 글
         </h1>
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-600 text-base">
           총 {allPosts.length}개의 글 · {currentPage} / {totalPages}
         </p>
       </header>
@@ -42,12 +42,12 @@ export function ArchiveList({ allPosts }: ArchiveListProps) {
             <Link href={`/posts/${post.slug}`} key={post.slug}>
               <article className="group py-8 border-b border-gray-100 hover:border-gray-300 transition-colors cursor-pointer">
                 <div className="flex items-start justify-between mb-3">
-                  <h2 className="text-xl font-light text-gray-900 group-hover:text-gray-600 transition-colors flex-1">
+                  <h2 className="text-xl font-medium text-gray-900 group-hover:text-gray-600 transition-colors flex-1">
                     {post.title}
                   </h2>
                   <ChevronRight className="ml-4 text-gray-300 group-hover:text-gray-500 transition-all group-hover:translate-x-1 flex-shrink-0" size={20} />
                 </div>
-                <div className="flex items-center gap-4 text-xs text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-gray-400">
                   <span className="px-2 py-1 bg-gray-50 rounded text-gray-600">
                     {post.category}
                   </span>
@@ -61,7 +61,7 @@ export function ArchiveList({ allPosts }: ArchiveListProps) {
                   </div>
                 </div>
                 {post.excerpt && (
-                  <p className="text-gray-600 leading-relaxed text-sm mt-3">
+                  <p className="text-gray-600 leading-relaxed text-base mt-3">
                     {post.excerpt}
                   </p>
                 )}

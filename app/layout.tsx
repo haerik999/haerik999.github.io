@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 const siteURL = "https://haerik999.github.io";
-const siteTitle = "Learning Dev";
+const siteTitle = "Haerik";
 const siteDescription =
-  "개발에 대해 배우고 학습한 개념들을 정리하는 위키입니다.";
+  "개발에 대해 배우고 학습한 개념들을 정리하는 블로그입니다.";
 
 export const viewport: Viewport = {
   width: "device-width",

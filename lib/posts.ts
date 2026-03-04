@@ -17,6 +17,7 @@ export interface Post {
   category?: string;
   excerpt?: string;
   order?: number;
+  tags: string[];
   content: string;
   readTime: number;
 }
@@ -28,7 +29,31 @@ export interface PostMetadata {
   category?: string;
   excerpt?: string;
   order?: number;
+  tags: string[];
   readTime: number;
+}
+
+export interface BacklinkInfo {
+  slug: string;
+  title: string;
+  excerpt?: string;
+}
+
+export interface GraphNode {
+  id: string;
+  label: string;
+  category?: string;
+  val: number;
+}
+
+export interface GraphLink {
+  source: string;
+  target: string;
+}
+
+export interface GraphData {
+  nodes: GraphNode[];
+  links: GraphLink[];
 }
 
 export interface CategoryNode {
@@ -60,6 +85,7 @@ export function getAllPosts(): PostMetadata[] {
         category: data.category || 'General',
         excerpt: data.excerpt || '',
         order: data.order,
+        tags: (data.tags as string[]) || [],
         readTime: calculateReadTime(content),
       };
     })
@@ -86,6 +112,7 @@ export function getPostBySlug(slug: string): Post {
     date: data.date || new Date().toISOString(),
     category: data.category || 'General',
     excerpt: data.excerpt || '',
+    tags: (data.tags as string[]) || [],
     content,
     readTime: calculateReadTime(content),
   };
@@ -151,4 +178,111 @@ export function buildCategoryTree(posts: PostMetadata[]): CategoryNode[] {
   const roots = Array.from(nodeMap.values()).filter(node => !node.path.includes('/'));
   sortNodes(roots);
   return roots;
+}
+
+function getAllPostsWithContent(): Post[] {
+  if (!fs.existsSync(postsDirectory)) return [];
+  const files = fs.readdirSync(postsDirectory);
+  return files
+    .filter(file => file.endsWith('.md'))
+    .map(file => {
+      const filePath = path.join(postsDirectory, file);
+      const fileContents = fs.readFileSync(filePath, 'utf8');
+      const { data, content } = matter(fileContents);
+      const slug = file.replace('.md', '');
+      return {
+        slug,
+        title: data.title || slug,
+        date: data.date || new Date().toISOString(),
+        category: data.category || 'General',
+        excerpt: data.excerpt || '',
+        order: data.order,
+        tags: (data.tags as string[]) || [],
+        content,
+        readTime: calculateReadTime(content),
+      };
+    });
+}
+
+export function extractWikiLinks(content: string): string[] {
+  const regex = /\[\[([^\]|]+?)(?:\|[^\]]+?)?\]\]/g;
+  const links: string[] = [];
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    links.push(match[1]);
+  }
+  return [...new Set(links)];
+}
+
+export function buildBacklinkMap(posts?: Post[]): Record<string, BacklinkInfo[]> {
+  const allPosts = posts ?? getAllPostsWithContent();
+  const backlinkMap: Record<string, BacklinkInfo[]> = {};
+
+  for (const post of allPosts) {
+    const wikiLinks = extractWikiLinks(post.content);
+    for (const targetSlug of wikiLinks) {
+      if (!backlinkMap[targetSlug]) {
+        backlinkMap[targetSlug] = [];
+      }
+      backlinkMap[targetSlug].push({
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+      });
+    }
+  }
+
+  return backlinkMap;
+}
+
+export function buildGraphData(posts?: Post[]): GraphData {
+  const allPosts = posts ?? getAllPostsWithContent();
+  const linkCounts: Record<string, number> = {};
+  const links: GraphLink[] = [];
+
+  for (const post of allPosts) {
+    linkCounts[post.slug] = linkCounts[post.slug] || 0;
+    const wikiLinks = extractWikiLinks(post.content);
+    for (const target of wikiLinks) {
+      if (allPosts.some(p => p.slug === target)) {
+        links.push({ source: post.slug, target });
+        linkCounts[post.slug] = (linkCounts[post.slug] || 0) + 1;
+        linkCounts[target] = (linkCounts[target] || 0) + 1;
+      }
+    }
+  }
+
+  const nodes: GraphNode[] = allPosts.map(post => ({
+    id: post.slug,
+    label: post.title,
+    category: post.category,
+    val: (linkCounts[post.slug] || 0) + 1,
+  }));
+
+  return { nodes, links };
+}
+
+export function getRelatedPosts(
+  slug: string,
+  allPosts: PostMetadata[],
+  tags: string[],
+  backlinkMap: Record<string, BacklinkInfo[]>,
+): PostMetadata[] {
+  const backlinkSlugs = new Set((backlinkMap[slug] || []).map(b => b.slug));
+
+  const scored = allPosts
+    .filter(p => p.slug !== slug)
+    .map(p => {
+      let score = 0;
+      const sharedTags = p.tags.filter(t => tags.includes(t)).length;
+      score += sharedTags * 2;
+      if (backlinkSlugs.has(p.slug)) score += 3;
+      if (p.category && allPosts.find(op => op.slug === slug)?.category === p.category) score += 1;
+      return { post: p, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  return scored.map(s => s.post);
 }

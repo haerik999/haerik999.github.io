@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { X, ArrowLeft } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { CategoryNode, PostMetadata } from '@/lib/posts';
+import type { PostMetadata, BacklinkInfo } from '@/lib/posts';
 import { useSidebar } from './SidebarProvider';
-import { CategoryTree } from './CategoryTree';
+import { RelatedPanel } from './RelatedPanel';
 
 interface SidebarProps {
-  categoryTree: CategoryNode[];
   allPosts: PostMetadata[];
+  backlinkMap: Record<string, BacklinkInfo[]>;
 }
 
 const SIDEBAR_WIDTH_KEY = 'wiki-sidebar-width';
@@ -24,15 +24,12 @@ function findTopCategory(allPosts: PostMetadata[], slug: string): string | null 
   return post.category.split('/')[0];
 }
 
-export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
+export function Sidebar({ allPosts, backlinkMap }: SidebarProps) {
   const { isOpen, close } = useSidebar();
   const pathname = usePathname();
   const currentSlug = pathname.replace('/posts/', '');
 
   const topCategory = findTopCategory(allPosts, currentSlug);
-  const filteredTree = topCategory
-    ? categoryTree.filter(node => node.name === topCategory)
-    : categoryTree;
 
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
   const [isDragging, setIsDragging] = useState(false);
@@ -133,9 +130,9 @@ export function Sidebar({ categoryTree, allPosts }: SidebarProps) {
           </button>
         </div>
 
-        {/* Category tree */}
+        {/* Related panel */}
         <nav className="px-2 py-3">
-          <CategoryTree categoryTree={filteredTree} />
+          <RelatedPanel allPosts={allPosts} backlinkMap={backlinkMap} />
         </nav>
 
         {/* Resize handle (desktop only) */}

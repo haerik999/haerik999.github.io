@@ -9,33 +9,33 @@ import { CodeRunner } from './CodeRunner';
 
 const components = {
   h1: ({ children }: { children: React.ReactNode }) => (
-    <h1 className="text-3xl font-light mt-10 mb-5 text-gray-900 border-b border-gray-200 pb-3">
+    <h1 className="text-[28px] font-semibold leading-[1.3] mt-10 mb-5 text-gray-900 border-b border-gray-200 pb-3">
       {children}
     </h1>
   ),
   h2: ({ children }: { children: React.ReactNode }) => (
-    <h2 className="text-2xl font-light mt-8 mb-4 text-gray-900">
+    <h2 className="text-[22px] font-semibold leading-[1.3] mt-8 mb-4 text-gray-900">
       {children}
     </h2>
   ),
   h3: ({ children }: { children: React.ReactNode }) => (
-    <h3 className="text-lg font-light mt-6 mb-3 text-gray-800">{children}</h3>
+    <h3 className="text-xl font-semibold leading-[1.3] mt-6 mb-3 text-gray-800">{children}</h3>
   ),
   p: ({ children }: { children: React.ReactNode }) => (
-    <p className="text-sm leading-relaxed mb-5 text-gray-700">{children}</p>
+    <p className="text-base leading-[1.8] mb-5 text-gray-700">{children}</p>
   ),
   ul: ({ children }: { children: React.ReactNode }) => (
-    <ul className="list-disc list-inside mb-6 ml-2 text-gray-700 space-y-2">
+    <ul className="list-disc list-inside mb-6 ml-2 text-base text-gray-700 space-y-2">
       {children}
     </ul>
   ),
   ol: ({ children }: { children: React.ReactNode }) => (
-    <ol className="list-decimal list-inside mb-6 ml-2 text-gray-700 space-y-2">
+    <ol className="list-decimal list-inside mb-6 ml-2 text-base text-gray-700 space-y-2">
       {children}
     </ol>
   ),
   li: ({ children }: { children: React.ReactNode }) => (
-    <li className="text-gray-700">{children}</li>
+    <li className="text-base text-gray-700">{children}</li>
   ),
   code: ({ children }: { children: React.ReactNode }) => (
     <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800 border border-gray-200">
@@ -99,7 +99,7 @@ const components = {
   },
   table: ({ children }: { children: React.ReactNode }) => (
     <div className="overflow-x-auto mb-6">
-      <table className="min-w-full text-sm border-collapse border border-gray-200">
+      <table className="min-w-full text-base border-collapse border border-gray-200">
         {children}
       </table>
     </div>
@@ -117,10 +117,10 @@ const components = {
     <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 border border-gray-200">{children}</th>
   ),
   td: ({ children }: { children: React.ReactNode }) => (
-    <td className="px-3 py-2 text-sm text-gray-700 border border-gray-200">{children}</td>
+    <td className="px-3 py-2 text-base text-gray-700 border border-gray-200">{children}</td>
   ),
   blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="border-l-3 border-gray-300 pl-4 italic text-gray-600 my-6 py-2">
+    <blockquote className="border-l-3 border-gray-300 pl-4 italic text-base text-gray-600 my-6 py-2">
       {children}
     </blockquote>
   ),

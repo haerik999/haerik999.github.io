@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    {
+      "id": "hello-world",
+      "label": "Hello World",
+      "category": "General",
+      "val": 1
+    }
+  ],
+  "links": []
+}

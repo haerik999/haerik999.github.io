@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import dayjs from 'dayjs';
 import { Calendar, Clock } from 'lucide-react';
-import { getPostBySlug, getPostSlugs, getAllPosts } from '@/lib/posts';
+import { getPostBySlug, getPostSlugs, getAllPosts, buildBacklinkMap } from '@/lib/posts';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { PrevNextNav } from '@/components/PrevNextNav';
 import { SearchTrigger } from '@/components/SearchTrigger';
+import { BacklinkSection } from '@/components/BacklinkSection';
 
 const siteURL = 'https://haerik999.github.io';
-const siteName = 'Learning Dev';
+const siteName = 'Haerik';
 
 export function generateStaticParams() {
   const slugs = getPostSlugs();
@@ -29,8 +30,8 @@ export async function generateMetadata({
     title: post.title,
     description:
       post.excerpt ||
-      '개발 개념 정리 위키 - Learning Dev',
-    keywords: [post.title, '개발 위키', '기술 포스트'],
+      '개발 개념 정리 블로그 - Haerik',
+    keywords: [post.title, ...post.tags, '개발 위키', '기술 포스트'],
     authors: [{ name: 'haerik999' }],
     openGraph: {
       type: 'article',
@@ -40,7 +41,7 @@ export async function generateMetadata({
       title: post.title,
       description:
         post.excerpt ||
-        '개발 개념 정리 위키 - Learning Dev',
+        '개발 개념 정리 블로그 - Haerik',
       publishedTime: post.date,
       authors: ['haerik999'],
     },
@@ -49,7 +50,7 @@ export async function generateMetadata({
       title: post.title,
       description:
         post.excerpt ||
-        '개발 개념 정리 위키 - Learning Dev',
+        '개발 개념 정리 블로그 - Haerik',
     },
     alternates: {
       canonical: postURL,
@@ -68,6 +69,8 @@ export default async function PostPage({
   const allSlugs = getPostSlugs();
 
   const allPosts = getAllPosts();
+  const backlinkMap = buildBacklinkMap();
+  const backlinks = backlinkMap[slug] || [];
   const sameCategoryPosts = allPosts
     .filter(p => (p.category || 'General') === (post.category || 'General'))
     .sort((a, b) => a.title.localeCompare(b.title));
@@ -92,7 +95,7 @@ export default async function PostPage({
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Learning Dev',
+      name: 'Haerik',
       url: siteURL,
     },
     url: `${siteURL}/posts/${slug}`,
@@ -113,15 +116,24 @@ export default async function PostPage({
         <article>
           <header className="mb-16 pb-12 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4 mb-6">
-              <h1 className="text-3xl md:text-4xl font-light text-gray-900 leading-tight">
+              <h1 className="text-[32px] font-bold text-gray-900 leading-[1.3]">
                 {post.title}
               </h1>
               <SearchTrigger />
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-gray-400 text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-gray-400 text-base">
               <span className="px-2 py-1 bg-gray-50 rounded text-gray-600">
                 {post.category}
               </span>
+              {post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {post.tags.map(tag => (
+                    <span key={tag} className="px-2 py-0.5 bg-gray-100 rounded-full text-gray-500 text-sm">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="flex items-center gap-1">
                 <Calendar size={14} />
                 <time dateTime={post.date}>
@@ -140,6 +152,7 @@ export default async function PostPage({
           </div>
 
           <PrevNextNav prevPost={prevPost} nextPost={nextPost} />
+          <BacklinkSection backlinks={backlinks} />
         </article>
       </div>
     </main>

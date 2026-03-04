@@ -11,6 +11,7 @@ interface SearchIndexItem {
   category?: string;
   excerpt?: string;
   content?: string;
+  tags?: string[];
 }
 
 interface SearchResult extends SearchIndexItem {
@@ -21,6 +22,7 @@ function scoreItem(item: SearchIndexItem, query: string): number {
   const q = query.toLowerCase();
   let score = 0;
   if (item.title.toLowerCase().includes(q)) score += 10;
+  if (item.tags?.some(t => t.toLowerCase().includes(q))) score += 5;
   if (item.content?.toLowerCase().includes(q)) score += 1;
   return score;
 }
@@ -145,14 +147,23 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
                       onSelect={() => handleSelect(item.slug)}
                       className="px-4 py-3 cursor-pointer data-[selected=true]:bg-gray-100 transition-colors"
                     >
-                      <div className="text-sm font-medium text-gray-900 truncate">
+                      <div className="text-base font-medium text-gray-900 truncate">
                         {item.title}
                       </div>
-                      <div className="text-xs text-gray-400 mt-0.5 truncate">
+                      <div className="text-sm text-gray-400 mt-0.5 truncate">
                         {item.category && <span>{item.category}</span>}
                         {item.category && item.excerpt && <span> &mdash; </span>}
                         {item.excerpt && <span>{item.excerpt}</span>}
                       </div>
+                      {item.tags && item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {item.tags.slice(0, 4).map(tag => (
+                            <span key={tag} className="text-[10px] px-1.5 py-0 bg-gray-100 text-gray-500 rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </Command.Item>
                   ))}
                 </Command.Group>

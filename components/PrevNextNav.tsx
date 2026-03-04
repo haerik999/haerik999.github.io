@@ -15,7 +15,7 @@ export function PrevNextNav({ prevPost, nextPost }: PrevNextNavProps) {
         {prevPost && (
           <Link
             href={`/posts/${prevPost.slug}`}
-            className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-1 text-base text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ChevronLeft size={16} className="flex-shrink-0" />
             <span className="truncate">이전: {prevPost.title}</span>
@@ -26,7 +26,7 @@ export function PrevNextNav({ prevPost, nextPost }: PrevNextNavProps) {
         {nextPost && (
           <Link
             href={`/posts/${nextPost.slug}`}
-            className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-1 text-base text-gray-600 hover:text-gray-900 transition-colors"
           >
             <span className="truncate">다음: {nextPost.title}</span>
             <ChevronRight size={16} className="flex-shrink-0" />

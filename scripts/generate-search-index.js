@@ -17,7 +17,19 @@ function parseFrontmatter(raw) {
     if (colonIdx === -1) return;
     const key = line.slice(0, colonIdx).trim();
     const value = line.slice(colonIdx + 1).trim().replace(/^['"]|['"]$/g, '');
-    if (key) data[key] = value;
+    if (!key) return;
+
+    if (key === 'tags') {
+      const arrayMatch = value.match(/^\[(.*)\]$/);
+      if (arrayMatch) {
+        data[key] = arrayMatch[1].split(',').map(t => t.trim()).filter(Boolean);
+      } else {
+        data[key] = [];
+      }
+      return;
+    }
+
+    data[key] = value;
   });
 
   return { data, content };
@@ -50,6 +62,16 @@ function generateExcerpt(text, length = 150) {
   return stripped.slice(0, length).trimEnd() + '...';
 }
 
+function extractWikiLinks(content) {
+  const regex = /\[\[([^\]|]+?)(?:\|[^\]]+?)?\]\]/g;
+  const links = [];
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    links.push(match[1]);
+  }
+  return [...new Set(links)];
+}
+
 if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir, { recursive: true });
 }
@@ -65,6 +87,7 @@ const index = files.map((file) => {
     slug,
     title: data.title || slug,
     category: data.category || '',
+    tags: data.tags || [],
     excerpt: generateExcerpt(content),
     content: stripMarkdown(content),
   };
@@ -77,3 +100,42 @@ fs.writeFileSync(
 );
 
 console.log(`Search index generated: ${index.length} posts`);
+
+// Build graph data
+const slugSet = new Set(files.map(f => f.replace(/\.md$/, '')));
+const linkCounts = {};
+const graphLinks = [];
+
+files.forEach((file) => {
+  const slug = file.replace(/\.md$/, '');
+  const raw = fs.readFileSync(path.join(postsDir, file), 'utf-8');
+  const { content } = parseFrontmatter(raw);
+  const wikiLinks = extractWikiLinks(content);
+
+  linkCounts[slug] = linkCounts[slug] || 0;
+
+  wikiLinks.forEach(target => {
+    if (slugSet.has(target)) {
+      graphLinks.push({ source: slug, target });
+      linkCounts[slug] = (linkCounts[slug] || 0) + 1;
+      linkCounts[target] = (linkCounts[target] || 0) + 1;
+    }
+  });
+});
+
+const graphNodes = index.map(item => ({
+  id: item.slug,
+  label: item.title,
+  category: item.category || undefined,
+  val: (linkCounts[item.slug] || 0) + 1,
+}));
+
+const graphData = { nodes: graphNodes, links: graphLinks };
+
+fs.writeFileSync(
+  path.join(publicDir, 'graph-data.json'),
+  JSON.stringify(graphData, null, 2),
+  'utf-8'
+);
+
+console.log(`Graph data generated: ${graphNodes.length} nodes, ${graphLinks.length} links`);
