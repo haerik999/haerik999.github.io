@@ -1,4 +1,11 @@
 {
-  "nodes": [],
+  "nodes": [
+    {
+      "id": "blog-godot-android-export",
+      "label": "Godot 4.6 Android APK 빌드 - Headless Export 및 PCK 로딩 이슈",
+      "category": "Backend/Game",
+      "val": 1
+    }
+  ],
   "links": []
 }

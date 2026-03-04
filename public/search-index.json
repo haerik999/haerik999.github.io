@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "slug": "blog-godot-android-export",
+    "title": "Godot 4.6 Android APK 빌드 - Headless Export 및 PCK 로딩 이슈",
+    "category": "Backend/Game",
+    "tags": [],
+    "excerpt": "Godot 4.6.x에서 Android APK를 빌드할 때 발생하는 주요 이슈와 해결 방법을 정리한다. 환경 이슈 1: Headless CLI Export의 빈 에러 메시지 증상 뒤에 에러 내용이 출력되지 않는다. 원인 Godot 4.6의 알려진 버그. headless...",
+    "content": "Godot 4.6.x에서 Android APK를 빌드할 때 발생하는 주요 이슈와 해결 방법을 정리한다. 환경 이슈 1: Headless CLI Export의 빈 에러 메시지 증상 뒤에 에러 내용이 출력되지 않는다. 원인 Godot 4.6의 알려진 버그. headless 모드에서 설정 유효성 검사 에러 메시지가 빈 문자열로 출력된다. godotengine/godot#1757 godotengine/godot#83042 효과 없는 시도들 아래 방법들은 모두 이 빈 에러를 해결하지 못한다: 대응 GUI 에디터에서 익스포트하면 실제 에러 메시지를 확인할 수 있다. CLI로 빌드해야 한다면 Gradle 직접 빌드를 사용한다(아래 해결책 참조). 이슈 2: APK 내 main.pck를 로딩하지 못하는 문제 증상 으로 .pck 파일을 생성하고 APK의 에 넣은 뒤 실행하면: 시도한 방법들 ZIP 직접 조립: Gradle 빌드: noCompress 설정 추가: (압축) → (비압축)으로 변경 확인 후에도 동일한 에러 발생. 근본 원인: Godot 4.6 Android는 main.pck를 탐색하지 않는다 Godot 4.6 소스 코드(, ) 분석 결과, Android 런타임의 프로젝트 데이터 로딩 순서는 다음과 같다: 를 찾는 로직이 없다. 으로 생성되는 단일 .pck 파일은 데스크탑/웹 전용 포맷이다. 배경: Godot 4.5의 변경사항 Godot 4.5부터 Android 익스포트에 Sparse bundle 포맷이 도입되어, 단일 .pck 방식은 Android에서 더 이상 동작하지 않는다. godotengine/godot#105984 - Sparse bundle PCK support godotengine/godot#108805 - Android export broken after 4.4.1→4.5 godotengine/godot#114528 - assets.sparsepck Android export fails 해결책: 프로젝트 파일을 개별적으로 assets에 복사 APK의 디렉토리에 프로젝트 파일을 개별적으로 배치하고 Gradle로 빌드한다. 빌드 스크립트 config.gradle 설정 의 버전을 실제 설치된 SDK에 맞게 수정해야 한다: 설치된 버전 확인: build.gradle 설정 주의사항 요약 GUI vs CLI 차이 GUI 에디터 익스포트는 내부적으로 개별 파일 복사 방식을 사용한다. CLI 는 headless 에러 버그로 인해 설정 부족을 알려주지 않고 실패한다. CLI로 빌드하려면 Gradle 직접 빌드를 사용해야 한다. 참고 링크 godotengine/godot#108805 - Android export broken after 4.4.1→4.5 godotengine/godot#114528 - assets.sparsepck Android export fails godotengine/godot#105984 - Sparse bundle PCK support PR godotengine/godot#109551 - Keystore env var validation issue godotengine/godot#1757 - Headless export doesn't show errors godotengine/godot#83042"
+  }
+]
