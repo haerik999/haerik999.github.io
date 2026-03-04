@@ -1,12 +1,1 @@
-[
-  {
-    "slug": "hello-world",
-    "title": "Hello World",
-    "category": "General",
-    "tags": [
-      "test"
-    ],
-    "excerpt": "Hello World 테스트 포스트입니다.",
-    "content": "Hello World 테스트 포스트입니다."
-  }
-]
+[]

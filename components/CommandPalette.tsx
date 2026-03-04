@@ -147,7 +147,7 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
                       onSelect={() => handleSelect(item.slug)}
                       className="px-4 py-3 cursor-pointer data-[selected=true]:bg-gray-100 transition-colors"
                     >
-                      <div className="text-base font-medium text-gray-900 truncate">
+                      <div className="text-sm font-bold text-gray-900 truncate">
                         {item.title}
                       </div>
                       <div className="text-sm text-gray-400 mt-0.5 truncate">

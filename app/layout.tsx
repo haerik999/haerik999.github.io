@@ -1,18 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import Link from 'next/link';
 import "./globals.css";
-import { SidebarProvider } from "@/components/sidebar/SidebarProvider";
 import { CommandPaletteProvider } from "@/components/CommandPalette";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { SearchTrigger } from "@/components/SearchTrigger";
 
 const siteURL = "https://haerik999.github.io";
 const siteTitle = "Haerik";
@@ -85,18 +75,54 @@ export default function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <link rel="canonical" href={siteURL} />
+        <link
+          rel="stylesheet"
+          href="https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <CommandPaletteProvider>
-          <SidebarProvider>
+          {/* Header */}
+          <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
+            <div className="max-w-[960px] mx-auto px-6 h-[60px] flex items-center justify-between">
+              <Link href="/" className="text-lg font-bold text-gray-900 hover:opacity-80 transition-opacity">
+                Haerik
+              </Link>
+              <nav className="flex items-center gap-6">
+                <Link href="/archive" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  Archive
+                </Link>
+                <SearchTrigger />
+              </nav>
+            </div>
+          </header>
+
+          {/* Main content */}
+          <div className="max-w-[960px] mx-auto px-6">
             {children}
-          </SidebarProvider>
+          </div>
+
+          {/* Footer */}
+          <footer className="bg-black mt-32">
+            <div className="max-w-[960px] mx-auto px-6 py-10">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-400">Haerik</span>
+                <div className="flex items-center gap-4">
+                  <Link href="/archive" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+                    Archive
+                  </Link>
+                  <Link href="https://github.com/haerik999" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+                    GitHub
+                  </Link>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 mt-4">&copy; Haerik</p>
+            </div>
+          </footer>
         </CommandPaletteProvider>
       </body>
     </html>

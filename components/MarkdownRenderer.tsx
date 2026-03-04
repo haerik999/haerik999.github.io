@@ -9,17 +9,17 @@ import { CodeRunner } from './CodeRunner';
 
 const components = {
   h1: ({ children }: { children: React.ReactNode }) => (
-    <h1 className="text-[28px] font-semibold leading-[1.3] mt-10 mb-5 text-gray-900 border-b border-gray-200 pb-3">
+    <h1 className="text-[28px] font-extrabold leading-[1.3] mt-10 mb-5 text-gray-900 border-b border-gray-200 pb-3">
       {children}
     </h1>
   ),
   h2: ({ children }: { children: React.ReactNode }) => (
-    <h2 className="text-[22px] font-semibold leading-[1.3] mt-8 mb-4 text-gray-900">
+    <h2 className="text-[23px] font-extrabold leading-normal mt-12 pt-[30px] pb-3 mb-4 text-gray-900">
       {children}
     </h2>
   ),
   h3: ({ children }: { children: React.ReactNode }) => (
-    <h3 className="text-xl font-semibold leading-[1.3] mt-6 mb-3 text-gray-800">{children}</h3>
+    <h3 className="text-xl font-bold leading-normal pt-5 pb-2.5 mt-6 mb-3 text-gray-800">{children}</h3>
   ),
   p: ({ children }: { children: React.ReactNode }) => (
     <p className="text-base leading-[1.8] mb-5 text-gray-700">{children}</p>
@@ -38,7 +38,7 @@ const components = {
     <li className="text-base text-gray-700">{children}</li>
   ),
   code: ({ children }: { children: React.ReactNode }) => (
-    <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800 border border-gray-200">
+    <code className="bg-[#F6F9FC] px-1 py-0.5 rounded text-sm font-mono text-gray-900">
       {children}
     </code>
   ),
@@ -120,7 +120,7 @@ const components = {
     <td className="px-3 py-2 text-base text-gray-700 border border-gray-200">{children}</td>
   ),
   blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="border-l-3 border-gray-300 pl-4 italic text-base text-gray-600 my-6 py-2">
+    <blockquote className="pl-5 text-base text-[#90949A] my-4 py-2 italic">
       {children}
     </blockquote>
   ),

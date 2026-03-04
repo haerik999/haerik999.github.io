@@ -1,12 +1,9 @@
 import type { Metadata } from 'next';
 import dayjs from 'dayjs';
-import { Calendar, Clock } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getPostSlugs, getAllPosts, buildBacklinkMap } from '@/lib/posts';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { Breadcrumb } from '@/components/Breadcrumb';
 import { PrevNextNav } from '@/components/PrevNextNav';
-import { SearchTrigger } from '@/components/SearchTrigger';
 import { BacklinkSection } from '@/components/BacklinkSection';
 
 const siteURL = 'https://haerik999.github.io';
@@ -109,58 +106,48 @@ export default async function PostPage({
   };
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
-      <div className="max-w-4xl mx-auto px-8 py-12">
-        <div className="mb-8">
-          <Breadcrumb category={post.category || 'General'} />
+
+      <article>
+        {/* Header */}
+        <header className="mb-16">
+          <div className="text-lg font-semibold text-blue-500 mb-3">
+            {post.category}
+          </div>
+          <h1 className="text-[32px] font-bold text-gray-900 leading-[1.3] mb-3">
+            {post.title}
+          </h1>
+          {post.excerpt && (
+            <p className="text-lg text-gray-500 mb-4 leading-relaxed">
+              {post.excerpt}
+            </p>
+          )}
+          <div className="text-lg text-gray-400">
+            {dayjs(post.date).format('YYYY.MM.DD')}
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="mb-16">
+          <MarkdownRenderer content={post.content} allSlugs={allSlugs} />
         </div>
 
-        <article>
-          <header className="mb-16 pb-12 border-b border-gray-100">
-            <div className="flex items-start justify-between gap-4 mb-6">
-              <h1 className="text-[32px] font-bold text-gray-900 leading-[1.3]">
-                {post.title}
-              </h1>
-              <SearchTrigger />
-            </div>
-            <div className="flex flex-wrap items-center gap-4 text-gray-400 text-base">
-              <span className="px-2 py-1 bg-gray-50 rounded text-gray-600">
-                {post.category}
-              </span>
-              {post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {post.tags.map(tag => (
-                    <span key={tag} className="px-2 py-0.5 bg-gray-100 rounded-full text-gray-500 text-sm">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="flex items-center gap-1">
-                <Calendar size={14} />
-                <time dateTime={post.date}>
-                  {dayjs(post.date).format('YYYY년 M월 D일')}
-                </time>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock size={14} />
-                <span>{post.readTime}분 읽음</span>
-              </div>
-            </div>
-          </header>
-
-          <div className="prose prose-lg max-w-none">
-            <MarkdownRenderer content={post.content} allSlugs={allSlugs} />
+        {/* Tags */}
+        {post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-12">
+            {post.tags.map(tag => (
+              <span key={tag} className="text-sm text-gray-500">#{tag}</span>
+            ))}
           </div>
+        )}
 
-          <PrevNextNav prevPost={prevPost} nextPost={nextPost} />
-          <BacklinkSection backlinks={backlinks} />
-        </article>
-      </div>
+        <PrevNextNav prevPost={prevPost} nextPost={nextPost} />
+        <BacklinkSection backlinks={backlinks} />
+      </article>
     </main>
   );
 }

@@ -1,135 +1,66 @@
 import Link from 'next/link';
 import dayjs from 'dayjs';
-import { FolderOpen, Clock, FileText, Tag } from 'lucide-react';
-import { getAllPosts, buildCategoryTree, CategoryNode } from '@/lib/posts';
-import { SearchTrigger } from '@/components/SearchTrigger';
-import { KnowledgeGraph } from '@/components/KnowledgeGraph';
-
-function countPosts(node: CategoryNode): number {
-  return node.posts.length + node.children.reduce((sum, child) => sum + countPosts(child), 0);
-}
-
-function findFirstPost(node: CategoryNode): string | null {
-  if (node.posts.length > 0) return node.posts[0].slug;
-  for (const child of node.children) {
-    const slug = findFirstPost(child);
-    if (slug) return slug;
-  }
-  return null;
-}
-
-function getSubcategoryNames(node: CategoryNode): string[] {
-  return node.children.map(child => child.name);
-}
-
-function collectAllTags(posts: { tags: string[] }[]): { tag: string; count: number }[] {
-  const tagCounts: Record<string, number> = {};
-  for (const post of posts) {
-    for (const tag of post.tags) {
-      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-    }
-  }
-  return Object.entries(tagCounts)
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count);
-}
+import { getAllPosts } from '@/lib/posts';
 
 export default function Home() {
   const posts = getAllPosts();
-  const categoryTree = buildCategoryTree(posts);
-  const recentPosts = posts.slice(0, 5);
-  const allTags = collectAllTags(posts);
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="max-w-5xl mx-auto px-8 py-12">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-12">
-          <h1 className="text-4xl font-semibold text-gray-900">Haerik</h1>
-          <SearchTrigger />
-        </div>
+    <main className="py-16">
+      {/* Hero */}
+      <section className="mb-16 text-center">
+        <h1 className="text-[32px] font-bold text-gray-900 mb-2">Haerik</h1>
+        <p className="text-lg text-gray-500">Story of a Developer</p>
+      </section>
 
-        {/* Knowledge Graph */}
-        <section className="mb-16">
-          <KnowledgeGraph />
-        </section>
-
-        {/* Category cards grid */}
-        <section className="mb-16">
-          <h2 className="flex items-center gap-2 text-xl font-medium text-gray-900 mb-6">
-            <FolderOpen size={18} className="text-gray-400" />
-            카테고리
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {categoryTree.map((category) => {
-              const firstSlug = findFirstPost(category);
-              const href = firstSlug ? `/posts/${firstSlug}` : '#';
-              const subcategories = getSubcategoryNames(category);
-              const postCount = countPosts(category);
-              return (
-                <Link key={category.path} href={href}>
-                  <div className="group p-5 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-sm transition-all cursor-pointer h-full">
-                    <h3 className="text-lg font-medium text-gray-900 group-hover:text-gray-700">{category.name}</h3>
-                    <p className="text-base text-gray-400 mt-1">{postCount}개 문서</p>
-                    {subcategories.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        {subcategories.map(sub => (
-                          <span key={sub} className="text-sm px-2 py-0.5 bg-gray-50 text-gray-500 rounded-full">{sub}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Tags */}
-        {allTags.length > 0 && (
-          <section className="mb-16">
-            <h2 className="flex items-center gap-2 text-xl font-medium text-gray-900 mb-6">
-              <Tag size={18} className="text-gray-400" />
-              태그
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {allTags.map(({ tag, count }) => (
-                <span
-                  key={tag}
-                  className="text-base px-3 py-1 bg-gray-50 text-gray-600 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors"
-                >
-                  {tag}
-                  <span className="ml-1 text-xs text-gray-400">{count}</span>
-                </span>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Recent updates */}
-        <section>
-          <h2 className="flex items-center gap-2 text-xl font-medium text-gray-900 mb-6">
-            <Clock size={18} className="text-gray-400" />
-            최근 업데이트
-          </h2>
-          <div className="space-y-0">
-            {recentPosts.map((post) => (
-              <Link key={post.slug} href={`/posts/${post.slug}`}>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors px-2 -mx-2 rounded">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <FileText size={14} className="text-gray-400 flex-shrink-0" />
-                    <span className="text-base text-gray-900 truncate">{post.title}</span>
-                    {post.category && (
-                      <span className="text-sm px-1.5 py-0.5 bg-gray-50 rounded text-gray-500 flex-shrink-0">{post.category}</span>
-                    )}
-                  </div>
-                  <span className="text-sm text-gray-400 shrink-0 ml-4">{dayjs(post.date).format('YYYY.MM.DD')}</span>
+      {/* Post list */}
+      <article>
+        <ul className="space-y-0">
+          {posts.map((post) => (
+            <li key={post.slug} className="border-b border-gray-100 last:border-b-0">
+              <Link
+                href={`/posts/${post.slug}`}
+                className="block py-8 group"
+              >
+                {/* Category + Date */}
+                <div className="flex items-center gap-3 mb-3">
+                  {post.category && (
+                    <span className="text-base font-semibold text-blue-500">
+                      {post.category}
+                    </span>
+                  )}
+                  <span className="text-base text-gray-400">
+                    {dayjs(post.date).format('YYYY-MM-DD')}
+                  </span>
                 </div>
+
+                {/* Title */}
+                <h2 className="text-xl font-bold text-black group-hover:text-blue-500 transition-colors mb-2">
+                  {post.title}
+                </h2>
+
+                {/* Excerpt */}
+                {post.excerpt && (
+                  <p className="text-base font-medium text-black mb-3 leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                )}
+
+                {/* Tags */}
+                {post.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map(tag => (
+                      <span key={tag} className="text-sm text-gray-500">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </Link>
-            ))}
-          </div>
-        </section>
-      </div>
+            </li>
+          ))}
+        </ul>
+      </article>
     </main>
   );
 }
