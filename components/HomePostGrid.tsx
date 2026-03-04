@@ -83,16 +83,16 @@ export function HomePostGrid({ posts }: HomePostGridProps) {
               <li key={post.slug}>
                 <Link
                   href={`/posts/${post.slug}`}
-                  className="group block overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                  className="group flex overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                 >
-                  <div className="relative h-44 overflow-hidden border-b border-gray-100">
+                  <div className="relative min-h-[180px] w-[38%] min-w-[140px] max-w-[300px] shrink-0 overflow-hidden border-r border-gray-100">
                     {post.coverImage ? (
                       <Image
                         src={post.coverImage}
                         alt={`${post.title} cover image`}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                        sizes="(max-width: 768px) 100vw, 50vw"
+                        sizes="(max-width: 768px) 38vw, 300px"
                       />
                     ) : (
                       <div className={`relative h-full w-full bg-gradient-to-br ${theme.cardGradientClass}`}>
@@ -106,7 +106,7 @@ export function HomePostGrid({ posts }: HomePostGridProps) {
                     )}
                   </div>
 
-                  <div className="p-5">
+                  <div className="min-w-0 flex-1 p-5">
                     <div className="mb-3 flex items-center gap-2 text-sm text-gray-400">
                       <span className={`rounded-full px-2 py-0.5 font-medium ${theme.badgeClass}`}>{topCategory}</span>
                       <span>{dayjs(post.date).format('YYYY.MM.DD')}</span>
