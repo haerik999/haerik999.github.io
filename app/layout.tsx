@@ -84,7 +84,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
         />
       </head>
-      <body className="antialiased">
+      <body className="antialiased min-h-screen flex flex-col">
         <CommandPaletteProvider>
           {/* Header */}
           <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
@@ -102,12 +102,12 @@ export default function RootLayout({
           </header>
 
           {/* Main content */}
-          <div className="max-w-[960px] mx-auto px-6">
+          <div className="flex-1 max-w-[960px] mx-auto px-6 w-full">
             {children}
           </div>
 
           {/* Footer */}
-          <footer className="bg-black mt-32">
+          <footer className="bg-black mt-auto">
             <div className="max-w-[960px] mx-auto px-6 py-10">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Haerik</span>
