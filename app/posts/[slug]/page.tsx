@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import dayjs from 'dayjs';
 import { Calendar, Clock } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { getPostBySlug, getPostSlugs, getAllPosts, buildBacklinkMap } from '@/lib/posts';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { Breadcrumb } from '@/components/Breadcrumb';
@@ -11,8 +12,11 @@ import { BacklinkSection } from '@/components/BacklinkSection';
 const siteURL = 'https://haerik999.github.io';
 const siteName = 'Haerik';
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   const slugs = getPostSlugs();
+  if (slugs.length === 0) return [{ slug: '__placeholder' }];
   return slugs.map((slug) => ({ slug }));
 }
 
@@ -22,6 +26,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === '__placeholder') return { title: 'No posts' };
   const post = getPostBySlug(slug);
 
   const postURL = `${siteURL}/posts/${slug}`;
@@ -64,6 +69,7 @@ export default async function PostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  if (slug === '__placeholder') notFound();
   const post = getPostBySlug(slug);
 
   const allSlugs = getPostSlugs();
