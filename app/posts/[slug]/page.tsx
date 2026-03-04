@@ -166,12 +166,12 @@ export default async function PostPage({
         {tocHeadings.length > 0 && (
           <section className="mb-10 rounded-2xl border border-gray-200 bg-gray-50/70 p-5 md:p-6">
             <h2 className="mb-3 text-sm font-semibold text-gray-600">목차</h2>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {tocHeadings.map((heading) => (
                 <li key={heading.id} className={heading.level === 3 ? 'pl-4' : ''}>
                   <a
                     href={`#${heading.id}`}
-                    className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
+                    className="block py-0.5 text-sm leading-snug text-gray-600 hover:text-gray-900 hover:underline"
                   >
                     {heading.text}
                   </a>
